@@ -1,15 +1,10 @@
 const mongoose = require('mongoose')
 
 const userSchema = mongoose.Schema({
-    name: { type: String, required: true },
+    name: { type: String },
     phone: {type: Number, required: true, unique: true},
-    email: {type: String, required: true},
-    password: {type: String, required: true},
     parentRefCode: {type: String},
-    registeredUsers: [{
-      userId: {type: String},
-      paymentStatus: {type: String, default: "Pending"}
-    }],
+    tempParent: {type: String},
     products: [
       {
         parentId: {type: String},
@@ -20,13 +15,13 @@ const userSchema = mongoose.Schema({
     ],
     payments: [],
     canBuy: {type: Boolean, default: true},
-    referral: {
-      refCode: {type: String, required: true, unique: true},
-      canRefer: {type: Boolean, default: true}
-    },
+
+    refCode: {type: String, required: true, unique: true},
+    canRefer: {type: Boolean, default: true},
+
     investment: {type: Number, default: 0},
     balance: { type: Number, default: 0 }
-})
+},{timestamps: true})
 
 const User = mongoose.model('user', userSchema)
 module.exports = User
