@@ -2,6 +2,7 @@ const express = require('express')
 const authRoute = require('./routes/authRoutes')
 const dbConnect = require('./config/dbConfig')
 const adminRoute = require('./routes/adminRoutes')
+const userRoute = require('./routes/userRoutes')
 const app = express()
 require('dotenv').config()
 
@@ -17,6 +18,7 @@ app.use(express.json());
 //auth, admin & user Routes
 app.use('/v1/api/auth',authRoute)
 app.use('/v1/api/admin', adminRoute)
+app.use('/v1/api/user', userRoute)
 
 app.listen(process.env.PORT,()=>{
     console.log(`Server running on PORT ${process.env.PORT}`)

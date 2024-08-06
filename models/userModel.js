@@ -13,7 +13,6 @@ const userSchema = mongoose.Schema({
         referrals: []
       }
     ],
-    payments: [],
     canBuy: {type: Boolean, default: true},
 
     refCode: {type: String, required: true, unique: true},
