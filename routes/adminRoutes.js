@@ -12,7 +12,7 @@ adminRoute.post('/approvepayment', buyProduct) // to be called
 
 // automatic redirected
 adminRoute.post('/commissiondistribution', commissionDistribution) 
-adminRoute.post('/checkCycle', cycleCkeck)
+adminRoute.post('/cyclecheck', cycleCkeck)
 
 
 module.exports = adminRoute

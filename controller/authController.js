@@ -31,7 +31,7 @@ const userLogin= async(req,res)=>{
                     const user = new User({phone: phone, tempParent: referralCode, refCode: refCode})
                     console.log(user)
                     await user.save()
-                    res.status(201).send({success: true, message: "Registration Successfull"})
+                    res.status(201).send({success: true, message: "Registration Successfull", user})
                 }
                 else{
                     res.status(400).send({success: false, message: "OTP not verified"})
