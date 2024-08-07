@@ -77,8 +77,8 @@ const buyProduct = async(req,res)=>{
                                 user.investment += payment.amount
                                 await order.save()
                                 await user.save()
-                                res.redirect('/v1/api/admin/cyclecheck')
-                                // return res.status(201).json({message: "Product Purchased successfully"})
+                                // res.redirect('/v1/api/admin/cyclecheck')
+                                return res.status(201).json({message: "Product Purchased successfully"})
                             }
                         }
                     }
@@ -89,8 +89,8 @@ const buyProduct = async(req,res)=>{
                         user.investment += payment.amount
                         await order.save()
                         await user.save()
-                        res.redirect('/v1/api/admin/cyclecheck')
-                        // return res.status(201).json({message: "Product Purchased successfully"})
+                        // res.redirect('/v1/api/admin/cyclecheck')
+                        return res.status(201).json({message: "Product Purchased successfully"})
                     }
                 }
                 else{
@@ -100,8 +100,8 @@ const buyProduct = async(req,res)=>{
                     user.investment += payment.amount
                     await order.save()
                     await user.save()
-                    res.redirect('/v1/api/admin/cyclecheck')
-                    // return res.status(201).json({message: "Product Purchased successfully"})
+                    // res.redirect('/v1/api/admin/cyclecheck')
+                    return res.status(201).json({message: "Product Purchased successfully"})
                 }
             }
             else{
@@ -111,15 +111,15 @@ const buyProduct = async(req,res)=>{
                 user.investment += payment.amount
                 await order.save()
                 await user.save()
-                res.redirect('/v1/api/admin/cyclecheck')
-                // return res.status(201).json({message: "Product Purchased successfully"})
+                // res.redirect('/v1/api/admin/cyclecheck')
+                return res.status(201).json({message: "Product Purchased successfully"})
             }
         }
         else{
             return res.status(200).json({message: "User can't buy product as he has an active product with incomplete cycle"})
         }
     } catch (error) {
-        return res.status(500).send({message: error.message})
+        return res.status(500).send({message: error.message,from: "buyProduct API"})
     }
 }
 
@@ -143,13 +143,13 @@ const commissionDistribution= async(req,res)=>{
                 grandParent.balance += product.price * product.grandParentCommission
                 await parent.save()
                 await grandParent.save()
-                res.redirect('/v1/api/admin/cyclecheck')
-                // res.status(200).json({message: "commission to parent and grandparent distributed successfully"})
+                // res.redirect('/v1/api/admin/cyclecheck')
+                res.status(200).json({message: "commission to parent and grandparent distributed successfully"})
             }
             else{
                 await parent.save()
-                res.redirect('/v1/api/admin/cyclecheck')
-                // res.status(200).json({message: "commission to parent distributed successfully"})
+                // res.redirect('/v1/api/admin/cyclecheck')
+                res.status(200).json({message: "commission to parent distributed successfully"})
             }
             
         }
@@ -166,89 +166,89 @@ const commissionDistribution= async(req,res)=>{
 //////////////////////////////////
 //checking cycle of grand parent//
 //////////////////////////////////
-const cycleCkeck= async(req,res)=>{
-    const {userId} = req.body
+// const cycleCkeck= async(req,res)=>{
+//     const {userId} = req.body
 
-    try {
-        const user = await User.findById(userId)
+//     try {
+//         const user = await User.findById(userId)
 
-        console.log("user from check cycle",user)
+//         console.log("user from check cycle",user)
 
-        if(!user) {return res.status(404).json({message: "User not found while cycle check"})}
-        const userProductIndex = user.products.length
-        if(user.products[userProductIndex -1].parentId){
-            const parent = await User.findById(user.products[userProductIndex-1].parentId)
+//         if(!user) {return res.status(404).json({message: "User not found while cycle check"})}
+//         const userProductIndex = user.products.length
+//         if(user.products[userProductIndex -1].parentId){
+//             const parent = await User.findById(user.products[userProductIndex-1].parentId)
 
-            console.log("parent from check cycle",parent)
+//             console.log("parent from check cycle",parent)
 
-            if(!parent) {return res.status(404).json({message: "Parent not found while checking cycle"})}
-            const parentProductIndex = parent.products.length
-            if(parent.products[parentProductIndex -1].parentId){
-                const grandParent = await User.findById(parent.products[parentProductIndex -1].parentId)
+//             if(!parent) {return res.status(404).json({message: "Parent not found while checking cycle"})}
+//             const parentProductIndex = parent.products.length
+//             if(parent.products[parentProductIndex -1].parentId){
+//                 const grandParent = await User.findById(parent.products[parentProductIndex -1].parentId)
 
-                console.log("grandParent",grandParent)
+//                 console.log("grandParent",grandParent)
 
-                if(!grandParent) {return res.status(404).json({message: "No grand parent found while checking cycle"})}
+//                 if(!grandParent) {return res.status(404).json({message: "No grand parent found while checking cycle"})}
 
-                const grandParentProductIndex = grandParent.products.length
+//                 const grandParentProductIndex = grandParent.products.length
 
-                if(grandParent.products[grandParentProductIndex -1].referrals.length == 3){
+//                 if(grandParent.products[grandParentProductIndex -1].referrals.length == 3){
 
-                    const firstChild = await User.findById(grandParent.products[grandParentProductIndex -1].referrals[0])
+//                     const firstChild = await User.findById(grandParent.products[grandParentProductIndex -1].referrals[0])
 
-                    const firstChildProductIndex = firstChild.products.length
+//                     const firstChildProductIndex = firstChild.products.length
 
-                    if(firstChild.products[firstChildProductIndex -1].referrals.length == 3){
+//                     if(firstChild.products[firstChildProductIndex -1].referrals.length == 3){
 
-                        const secondChild = await User.findById(grandParent.products[grandParentProductIndex -1].referrals[1])
+//                         const secondChild = await User.findById(grandParent.products[grandParentProductIndex -1].referrals[1])
 
-                        const secondChildProductIndex = secondChild.products.length
+//                         const secondChildProductIndex = secondChild.products.length
 
-                        if(secondChild.products[secondChildProductIndex -1].referrals.length == 3){
+//                         if(secondChild.products[secondChildProductIndex -1].referrals.length == 3){
 
-                            const thirdChild = await User.findById(grandParent.products[grandParentProductIndex -1].referrals[2])
+//                             const thirdChild = await User.findById(grandParent.products[grandParentProductIndex -1].referrals[2])
 
-                            const thirdChildProductIndex = thirdChild.products.length
+//                             const thirdChildProductIndex = thirdChild.products.length
 
-                            if(thirdChild.products[thirdChildProductIndex -1].referrals.length == 3){
+//                             if(thirdChild.products[thirdChildProductIndex -1].referrals.length == 3){
 
-                                //to deactivate user (grandParent)
-                                grandParent.canRefer = false
-                                grandParent.canBuy = true
-                                grandParent.tempParent = ""
-                                grandParent.products[grandParentProductIndex -1].isActive = false
-                                await grandParent.save()
-                                return res.status(200).json({message: "Purchased Successfully", cycle: "Completed"})
+//                                 //to deactivate user (grandParent)
+//                                 grandParent.canRefer = false
+//                                 grandParent.canBuy = true
+//                                 grandParent.tempParent = ""
+//                                 grandParent.products[grandParentProductIndex -1].isActive = false
+//                                 await grandParent.save()
+//                                 return res.status(200).json({message: "Purchased Successfully", cycle: "Completed"})
 
-                            }
-                            else{
-                                return res.status(200).json({message: "Purchased Successfully", cycle: "Not completed"})
-                            }
-                        }
-                        else{
-                            return res.status(200).json({message: "Purchased Successfully", cycle: "Not completed"})
-                        }
-                    }
-                    else{
-                        return res.status(200).json({message: "Purchased Successfully", cycle: "Not completed"})
-                    }
-                }
-                else{
-                    return res.status(200).json({message: "Purchased Successfully",cycle: "Not Completed" })
-                }
-            }
-            else{
-                return res.status(200).json({message: "Purchased successfully", cycle: "Not completed as no grandparent found"})
-            }
-        }
-        else{
-            return res.status(200).json({message: "Purchased successfully", cycle: "Not completed as no parent found"})
-        }
+//                             }
+//                             else{
+//                                 return res.status(200).json({message: "Purchased Successfully", cycle: "Not completed"})
+//                             }
+//                         }
+//                         else{
+//                             return res.status(200).json({message: "Purchased Successfully", cycle: "Not completed"})
+//                         }
+//                     }
+//                     else{
+//                         return res.status(200).json({message: "Purchased Successfully", cycle: "Not completed"})
+//                     }
+//                 }
+//                 else{
+//                     return res.status(200).json({message: "Purchased Successfully",cycle: "Not Completed" })
+//                 }
+//             }
+//             else{
+//                 return res.status(200).json({message: "Purchased successfully", cycle: "Not completed as no grandparent found"})
+//             }
+//         }
+//         else{
+//             return res.status(200).json({message: "Purchased successfully", cycle: "Not completed as no parent found"})
+//         }
 
 
-    } catch (error) {
-        return res.status(400).json({message: error.message})
-    }
-}
+//     } catch (error) {
+//         return res.status(400).json({message: error.message})
+//     }
+// }
 
-module.exports = { addProduct, buyProduct, commissionDistribution , cycleCkeck};
+module.exports = { addProduct, buyProduct, commissionDistribution};

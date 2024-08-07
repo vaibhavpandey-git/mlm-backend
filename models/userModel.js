@@ -10,11 +10,14 @@ const userSchema = mongoose.Schema({
         orderId: {type: String},
         productId: {type: String},
         isActive: {type: Boolean},
-        referrals: []
+        referrals: [{
+          userId: {type: String},
+          objectId: {type: String}
+        }]
       }
     ],
     canBuy: {type: Boolean, default: true},
-
+    
     refCode: {type: String, required: true, unique: true},
     canRefer: {type: Boolean, default: false},
 
