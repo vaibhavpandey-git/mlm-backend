@@ -20,26 +20,29 @@ const approveOrder = async(req,res)=>{
         user.canRefer = true;
         user.investment += payment.amount;
 
-        if(refCode) await applyReferral(refCode, order._id, user, product);
         await order.save();
         await user.save();
+        if(refCode) await applyReferral(refCode, order._id, user, product);
         res.status(201).json({message: "Purchased successfully"})
 
     } catch(error){
         console.error('Error while order: ', error);
-        res.status(500).json({message: "Internal server error"});
+        res.status(500).json({message: "Internal server error",error: error.message});
     }
 }
 
 async function applyReferral(refCode, orderId, user, product){
     const parent = await User.findOne({refCode:refCode});
-    if(!parent || !canReferred(parent, user)) return;
+    if(!parent) return;
+    const canBeReferred = await canReferred(parent,user)
+    if(!parent || !canBeReferred) return;
     const referralsLength = parent.products.at(-1).referrals.length;
     parent.products.at(-1).referrals.push({userId: user._id, orderId});
     user.products.at(-1).parentId = parent._id;
     if(referralsLength == 2) parent.canRefer = false;
     await commissionDistribution(parent, product);
     await parent.save();
+    await user.save();
 }
 
 
@@ -48,7 +51,9 @@ const commissionDistribution = async (parent, product)=>{
     if(parent.products.at(-1).parentId){
         const grandParent = await User.findById(parent.products.at(-1).parentId);
         grandParent.balance += product.price * product.grandParentCommission;
-        if(isCycleCompleted(grandParent)){
+        const isCompleted = await isCycleCompleted(grandParent);
+        if(isCompleted){
+            console.log("grand parent inside",grandParent);
             grandParent.canBuy = true;
             grandParent.products.at(-1).isActive = false;
         }
@@ -84,16 +89,23 @@ const canReferred = async (parent, user) => {
 
 const isCycleCompleted = async (user) => {
     const activeProduct = user.products.at(-1);
+    console.log("active product", activeProduct)
     const referrals = activeProduct.referrals;
     if(referrals.length < 3) return false;
     for(let i = 0; i < referrals.length; i++){
         const child = await User.findById(referrals[i].userId);
+        console.log("child",child)
         const activeProduct = child.products.find((product) => {
             return product.orderId === referrals[i].orderId;
         });
+        console.log(activeProduct)
         const childReferrals = activeProduct.referrals;
-        if(childReferrals.length < 3) return false;
+        if(childReferrals.length < 3) {
+            console.log("value i", i, " child ref length", referrals.length)
+            return false
+        };
     }
+    console.log("returning true")
     return true;
 }
 
