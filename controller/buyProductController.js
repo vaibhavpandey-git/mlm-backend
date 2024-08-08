@@ -33,9 +33,8 @@ const approveOrder = async(req,res)=>{
 
 async function applyReferral(refCode, orderId, user, product){
     const parent = await User.findOne({refCode:refCode});
-    if(!parent) return;
     const canBeReferred = await canReferred(parent,user)
-    if(!parent || !canBeReferred) return;
+    if(!canBeReferred) return;
     const referralsLength = parent.products.at(-1).referrals.length;
     parent.products.at(-1).referrals.push({userId: user._id, orderId});
     user.products.at(-1).parentId = parent._id;
@@ -51,7 +50,9 @@ const commissionDistribution = async (parent, product)=>{
     if(parent.products.at(-1).parentId){
         const grandParent = await User.findById(parent.products.at(-1).parentId);
         grandParent.balance += product.price * product.grandParentCommission;
+        await parent.save()
         const isCompleted = await isCycleCompleted(grandParent);
+        console.log("is completed from commission distri. for cycle",isCompleted)
         if(isCompleted){
             console.log("grand parent inside",grandParent);
             grandParent.canBuy = true;
@@ -62,7 +63,7 @@ const commissionDistribution = async (parent, product)=>{
 }
 
 const canReferred = async (parent, user) => {
-    if(!parent.canRefer) return false;
+    if(!parent?.canRefer) return false;
     const activeProduct = parent.products.at(-1);
     const referrals = activeProduct.referrals;
     console.log("from can referred", user._id)
@@ -91,7 +92,10 @@ const isCycleCompleted = async (user) => {
     const activeProduct = user.products.at(-1);
     console.log("active product", activeProduct)
     const referrals = activeProduct.referrals;
-    if(referrals.length < 3) return false;
+    if(referrals.length < 3){
+        console.log("referrals length se false hua", referrals.length)
+        return false
+    };
     for(let i = 0; i < referrals.length; i++){
         const child = await User.findById(referrals[i].userId);
         console.log("child",child)
@@ -101,7 +105,7 @@ const isCycleCompleted = async (user) => {
         console.log(activeProduct)
         const childReferrals = activeProduct.referrals;
         if(childReferrals.length < 3) {
-            console.log("value i", i, " child ref length", referrals.length)
+            console.log("value i", i, " child ref length", childReferrals.length)
             return false
         };
     }
