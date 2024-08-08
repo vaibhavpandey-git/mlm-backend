@@ -12,7 +12,7 @@ const userSchema = mongoose.Schema({
         isActive: {type: Boolean},
         referrals: [{
           userId: {type: String},
-          objectId: {type: String}
+          orderId: {type: String}
         }]
       }
     ],

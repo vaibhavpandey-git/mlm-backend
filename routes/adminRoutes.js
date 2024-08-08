@@ -1,5 +1,6 @@
 const Express = require('express')
-const { addProduct, buyProduct, commissionDistribution } = require('../controller/adminController')
+const { addProduct } = require('../controller/adminController')
+const approveOrder = require('../controller/buyProductController')
 
 
 const adminRoute = Express.Router()
@@ -8,11 +9,7 @@ const adminRoute = Express.Router()
 adminRoute.post('/addproduct', addProduct)
 
 //buy product or approve payment 
-adminRoute.post('/approvepayment', buyProduct) // to be called
-
-// automatic redirected
-adminRoute.post('/commissiondistribution', commissionDistribution) 
-// adminRoute.post('/cyclecheck', cycleCkeck)
+adminRoute.post('/buyproduct', approveOrder)
 
 
 module.exports = adminRoute

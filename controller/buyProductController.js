@@ -3,100 +3,98 @@ const Payment = require("../models/paymentModel");
 const Product = require("../models/productModel");
 const User = require("../models/userModel");
 
-const buyProduct = async(req,res)=>{
+const approveOrder = async(req,res)=>{
     const {productId, userId, refCode, paymentId} = req.body
     try {
         const user = await User.findById(userId);
         const product = await Product.findById(productId);
         const payment = await Payment.findById(paymentId);
 
-        if(!user || !product || !payment) {return res.status(404).send('User or Product not found')}
+        if(!user || !product || !payment) {return res.status(404).send('User or Product not found')};
 
-        if(user.canBuy){
-            if(refCode){
-                const parent = await User.findOne({refCode:refCode})
-                if(parent && parent.canRefer){
-                    const productsLength = parent.products.length
-                    const parentReferralsLength = parent.products[productsLength -1].referrals.length
-                    
-                    switch(parentReferralsLength){
-                        case 0:{
-                            const order = new Order({userId,productId,paymentId})
-                            user.products.push({parentId: parent._id, orderId: order._id,productId: productId, isActive: true, referrals: [] })
-                            const objectId = user.products[productsLength -1]._id
-                            user.canBuy = false
-                            user.canRefer = true
-                            user.investment += payment.amount
-                            parent.products[productsLength - 1].referrals.push(userId,objectId)
-                            await order.save()
-                            await user.save()
-                            await parent.save()
-                            res.redirect('/v1/api/admin/commissiondistribution')
-                            break
-                        }
-                        case 1:{
-                            const order = new Order({userId,productId,paymentId})
-                            user.products.push({parentId: parent._id, orderId: order._id,productId: productId, isActive: true})
-                            const objectId = user.products[productsLength -1]._id
-                            user.canBuy = false
-                            user.canRefer = true
-                            user.investment += payment.amount
-                            parent.products[productsLength - 1].referrals.push(userId,objectId)
-                            await order.save()
-                            await user.save()
-                            await parent.save()
-                            res.redirect('/v1/api/admin/commissiondistribution')
-                            break
-                        }
-                        case 2:{
-                            const order = new Order({userId,productId,paymentId})
-                            user.products.push({parentId: parent._id, orderId: order._id,productId: productId, isActive: true, referrals: [] })
-                            user.canBuy = false
-                            user.canRefer = true
-                            user.investment += payment.amount
-                            parent.canRefer = false
-                            parent.products[productsLength - 1].referrals.push(userId)
-                            await order.save()
-                            await user.save()
-                            await parent.save()
-                            // res.redirect('/v1/api/admin/commissiondistribution')
-                            break
-                        }
-                        case 3:{
-                            buyProductWithoutRefCode()
-                        }
-                        default: {
-                            buyProductWithoutRefCode()
-                        }
-                    }
-                }
-                else{
-                    buyProductWithoutRefCode()
-                }
-            }
-            else{
-                buyProductWithoutRefCode()
-            }
-        }
-        else{
-            return res.status(200).json({message: "User can't buy product as he has an active product with incomplete cycle"})
-        }
+        if(!user.canBuy) return res.status(200).json({message: "User can't buy product as he has an active product with incomplete cycle"});
 
-        
-        //functions to execute buy product
-        const buyProductWithoutRefCode= async()=>{
-            const order = new Order({userId,productId,paymentId})
-            user.products.push({orderId: order._id,productId: productId, isActive: true})
-            user.canBuy = false
-            user.canRefer = true
-            user.investment += payment.amount
-            await order.save()
-            await user.save()
-        }
+        const order = new Order({userId,productId,paymentId});
+        user.products.push({orderId: order._id,productId: productId, isActive: true})
+        user.canBuy = false;
+        user.canRefer = true;
+        user.investment += payment.amount;
 
-    } catch (error) {
-        return res.status(500).send({message: error.message,from: "buyProduct API"})
+        if(refCode) await applyReferral(refCode, order._id, user, product);
+        await order.save();
+        await user.save();
+        res.status(201).json({message: "Purchased successfully"})
+
+    } catch(error){
+        console.error('Error while order: ', error);
+        res.status(500).json({message: "Internal server error"});
     }
-
-
 }
+
+async function applyReferral(refCode, orderId, user, product){
+    const parent = await User.findOne({refCode:refCode});
+    if(!parent || !canReferred(parent, user)) return;
+    const referralsLength = parent.products.at(-1).referrals.length;
+    parent.products.at(-1).referrals.push({userId: user._id, orderId});
+    user.products.at(-1).parentId = parent._id;
+    if(referralsLength == 2) parent.canRefer = false;
+    await commissionDistribution(parent, product);
+    await parent.save();
+}
+
+
+const commissionDistribution = async (parent, product)=>{
+    parent.balance += product.price * product.parentCommission;
+    if(parent.products.at(-1).parentId){
+        const grandParent = await User.findById(parent.products.at(-1).parentId);
+        grandParent.balance += product.price * product.grandParentCommission;
+        if(isCycleCompleted(grandParent)){
+            grandParent.canBuy = true;
+            grandParent.products.at(-1).isActive = false;
+        }
+        await grandParent.save();
+    }
+}
+
+const canReferred = async (parent, user) => {
+    if(!parent.canRefer) return false;
+    const activeProduct = parent.products.at(-1);
+    const referrals = activeProduct.referrals;
+    console.log("from can referred", user._id)
+    const userId = user._id
+    for(let i = 0; i < referrals.length; i++){
+        if(referrals[i].userId === userId) return false;
+    }
+    if(activeProduct.parentId){
+        const grandParent = await User.findById(parent.products.at(-1).parentId);
+        const referrals = grandParent.products.at(-1).referrals;
+        for(let i = 0; i < referrals.length; i++){
+            if(referrals[i].userId === userId) return false;
+            const user = await User.findById(referrals[i].userId);
+            const activeProduct = user.products.at(-1);
+            const childReferrals = activeProduct.referrals;
+            for(let i = 0; i < childReferrals.length; i++){
+                if(childReferrals[i].userId === userId) return false;
+            }
+        }
+    } 
+    return true;
+}
+
+
+const isCycleCompleted = async (user) => {
+    const activeProduct = user.products.at(-1);
+    const referrals = activeProduct.referrals;
+    if(referrals.length < 3) return false;
+    for(let i = 0; i < referrals.length; i++){
+        const child = await User.findById(referrals[i].userId);
+        const activeProduct = child.products.find((product) => {
+            return product.orderId === referrals[i].orderId;
+        });
+        const childReferrals = activeProduct.referrals;
+        if(childReferrals.length < 3) return false;
+    }
+    return true;
+}
+
+module.exports = approveOrder
