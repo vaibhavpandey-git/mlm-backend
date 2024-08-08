@@ -26,11 +26,10 @@ const userLogin= async(req,res)=>{
             //Registering user if not present
             try {
                 const otpVerified = otpVerify(otp)
-                
+
                 if(otpVerified){
                     const refCode = refCodeGen().toString()
                     const user = new User({phone: phone, tempParent: referralCode, refCode: refCode})
-                    console.log(user)
                     await user.save()
                     res.status(201).send({success: true, message: "Registration Successfull", user})
                 }

@@ -52,9 +52,7 @@ const commissionDistribution = async (parent, product)=>{
         grandParent.balance += product.price * product.grandParentCommission;
         await parent.save()
         const isCompleted = await isCycleCompleted(grandParent);
-        console.log("is completed from commission distri. for cycle",isCompleted)
         if(isCompleted){
-            console.log("grand parent inside",grandParent);
             grandParent.canBuy = true;
             grandParent.products.at(-1).isActive = false;
         }
@@ -66,7 +64,6 @@ const canReferred = async (parent, user) => {
     if(!parent?.canRefer) return false;
     const activeProduct = parent.products.at(-1);
     const referrals = activeProduct.referrals;
-    console.log("from can referred", user._id)
     const userId = user._id
     for(let i = 0; i < referrals.length; i++){
         if(referrals[i].userId === userId) return false;
@@ -90,26 +87,16 @@ const canReferred = async (parent, user) => {
 
 const isCycleCompleted = async (user) => {
     const activeProduct = user.products.at(-1);
-    console.log("active product", activeProduct)
     const referrals = activeProduct.referrals;
-    if(referrals.length < 3){
-        console.log("referrals length se false hua", referrals.length)
-        return false
-    };
+    if(referrals.length < 3) return false;
     for(let i = 0; i < referrals.length; i++){
         const child = await User.findById(referrals[i].userId);
-        console.log("child",child)
         const activeProduct = child.products.find((product) => {
             return product.orderId === referrals[i].orderId;
         });
-        console.log(activeProduct)
         const childReferrals = activeProduct.referrals;
-        if(childReferrals.length < 3) {
-            console.log("value i", i, " child ref length", childReferrals.length)
-            return false
-        };
+        if(childReferrals.length < 3) return false;
     }
-    console.log("returning true")
     return true;
 }
 
