@@ -3,6 +3,11 @@ const Payment = require("../models/paymentModel");
 const Product = require("../models/productModel");
 const User = require("../models/userModel");
 
+/**
+ * This function is user to approve order of a user
+ * @param {req} - has requests from frontend
+ * @param {res} - has all the responses from backend to frontend
+ *  **/
 const approveOrder = async(req,res)=>{
     const {productId, userId, refCode, paymentId} = req.body
     try {
