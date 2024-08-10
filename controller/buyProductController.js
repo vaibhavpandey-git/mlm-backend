@@ -3,6 +3,7 @@ const Payment = require("../models/paymentModel");
 const Product = require("../models/productModel");
 const User = require("../models/userModel");
 
+
 const approveOrder = async(req,res)=>{
     const {productId, userId, refCode, paymentId} = req.body
     try {
@@ -44,7 +45,6 @@ async function applyReferral(refCode, orderId, user, product){
     await user.save();
 }
 
-
 const commissionDistribution = async (parent, product)=>{
     parent.balance += product.price * product.parentCommission;
     if(parent.products.at(-1).parentId){
@@ -80,7 +80,7 @@ const canReferred = async (parent, user) => {
                 if(childReferrals[i].userId === userId) return false;
             }
         }
-    } 
+    }
     return true;
 }
 

@@ -16,6 +16,13 @@ const userSchema = mongoose.Schema({
         }]
       }
     ],
+    bankDetails: {
+      bankName: {type: String, default: "State Bank"},
+      accountNumber: {type: Number, default: 9876543255},
+      accountHolder: {type: String, default: "Vaibhav Pandey"},
+      bankIFSC: {type: String, default: "SBIN00045"},
+      UPI: {type: String, default: "7827295033@paytm"}
+    },
     canBuy: {type: Boolean, default: true},
     
     refCode: {type: String, required: true, unique: true},

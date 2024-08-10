@@ -1,15 +1,13 @@
 const Express = require('express')
-const { addProduct } = require('../controller/adminController')
+const { addProduct, paidAcknowledgement } = require('../controller/adminController')
 const approveOrder = require('../controller/buyProductController')
 
 
 const adminRoute = Express.Router()
  
-//adding product
-adminRoute.post('/addproduct', addProduct)
-
-//buy product or approve payment 
-adminRoute.post('/buyproduct', approveOrder)
+adminRoute.post('/addproduct', addProduct);
+adminRoute.post('/buyproduct', approveOrder);
+adminRoute.post('/paidAcknowledgement', paidAcknowledgement);
 
 
 module.exports = adminRoute
