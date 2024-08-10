@@ -135,7 +135,7 @@ const canReferred = async (parent, user) => {
                 if(childReferrals[i].userId === userId) return false;
             }
         }
-    } 
+    }
     return true;
 }
 
