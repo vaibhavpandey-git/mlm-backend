@@ -3,11 +3,25 @@ const Payment = require("../models/paymentModel");
 const Product = require("../models/productModel");
 const User = require("../models/userModel");
 
+
+
 /**
- * This function is user to approve order of a user
- * @param {req} - has requests from frontend
- * @param {res} - has all the responses from backend to frontend
- *  **/
+ * Approves a product order for a user by validating the user, product, and payment.
+ * Updates the user's product list, investment, and referral status, and saves the order.
+ * 
+ * @async
+ * @function approveOrder
+ * @param {Object} req - Express request object.
+ * @param {Object} req.body - The request body.
+ * @param {string} req.body.productId - The ID of the product to be purchased.
+ * @param {string} req.body.userId - The ID of the user making the purchase.
+ * @param {string} req.body.refCode - The referral code, if any.
+ * @param {string} req.body.paymentId - The ID of the payment used.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} Sends a status response based on the success or failure of the order process.
+ */
+
+
 const approveOrder = async(req,res)=>{
     const {productId, userId, refCode, paymentId} = req.body
     try {
