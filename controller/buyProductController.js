@@ -13,10 +13,10 @@ const User = require("../models/userModel");
  * @function approveOrder
  * @param {Object} req - Express request object.
  * @param {Object} req.body - The request body.
- * @param {string} req.body.productId - The ID of the product to be purchased.
- * @param {string} req.body.userId - The ID of the user making the purchase.
- * @param {string} req.body.refCode - The referral code, if any.
- * @param {string} req.body.paymentId - The ID of the payment used.
+ * @param {String} req.body.productId - The ID of the product to be purchased.
+ * @param {String} req.body.userId - The ID of the user making the purchase.
+ * @param {String} req.body.refCode - The referral code, if any.
+ * @param {String} req.body.paymentId - The ID of the payment used.
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} Sends a status response based on the success or failure of the order process.
  */
@@ -50,6 +50,20 @@ const approveOrder = async(req,res)=>{
     }
 }
 
+/**
+ * Applies a referral code to an order, updating the referring user's data and distributing commissions.
+ * Links the referred user to the referring user, updates referral and commission details, and saves changes.
+ * 
+ * @async
+ * @function applyReferral
+ * @param {String} refCode - The referral code provided by the user.
+ * @param {String} orderId - The ID of the order to which the referral is being applied.
+ * @param {Object} user - The user making the purchase.
+ * @param {Object} product - The product being purchased.
+ * @returns {Promise<void>} Returns nothing, but saves updates to the database.
+ */
+
+
 async function applyReferral(refCode, orderId, user, product){
     const parent = await User.findOne({refCode:refCode});
     const canBeReferred = await canReferred(parent,user)
@@ -62,6 +76,17 @@ async function applyReferral(refCode, orderId, user, product){
     await parent.save();
     await user.save();
 }
+
+/**
+ * Distributes commissions to the parent and grandparent users based on the product's price and their respective commission rates.
+ * Updates the parent user's balance, and if applicable, the grandparent user's balance. Checks if the grandparent's cycle is completed.
+ * 
+ * @async
+ * @function commissionDistribution
+ * @param {Object} parent - The parent user receiving the commission.
+ * @param {Object} product - The product being purchased, used to calculate the commission.
+ * @returns {Promise<void>} Returns nothing, but saves updates to the parent and grandparent users.
+ */
 
 
 const commissionDistribution = async (parent, product)=>{
@@ -78,6 +103,17 @@ const commissionDistribution = async (parent, product)=>{
         await grandParent.save();
     }
 }
+
+/**
+ * Determines whether a user can be referred by a parent user, ensuring that the user has not already been referred in the parent's or grandparent's active product cycle.
+ * 
+ * @async
+ * @function canReferred
+ * @param {Object} parent - The parent user who may refer the current user.
+ * @param {Object} user - The user who is being checked for eligibility to be referred.
+ * @returns {Promise<boolean>} Returns `true` if the user can be referred, `false` otherwise.
+ */
+
 
 const canReferred = async (parent, user) => {
     if(!parent?.canRefer) return false;
@@ -103,6 +139,14 @@ const canReferred = async (parent, user) => {
     return true;
 }
 
+/**
+ * Checks if a user's product cycle is completed by verifying that the user and all referred users have at least three referrals each.
+ * 
+ * @async
+ * @function isCycleCompleted
+ * @param {Object} user - The user whose product cycle is being checked.
+ * @returns {Promise<boolean>} Returns `true` if the cycle is completed (i.e., the user and all their referrals have at least three referrals each), otherwise returns `false`.
+ */
 
 const isCycleCompleted = async (user) => {
     const activeProduct = user.products.at(-1);
