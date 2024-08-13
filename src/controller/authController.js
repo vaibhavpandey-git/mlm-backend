@@ -4,6 +4,7 @@ const otpVerify = require("../utility/otpVerification")
 
 const adminLogin=(req,res)=>{
     const {phone , password} = req.body
+
     
 }
 
@@ -11,7 +12,9 @@ const adminLogin=(req,res)=>{
 const userLogin= async(req,res)=>{
     const {phone, referralCode, otp} = req.body
     try {
-        const user = await User.findOne({phone: phone})
+        const user = await User.findOne({phone: phone
+            
+        })
         // const user = false
         if(user){
             const optVerified = otpVerify(otp)
@@ -26,23 +29,21 @@ const userLogin= async(req,res)=>{
             //Registering user if not present
             try {
                 const otpVerified = otpVerify(otp)
+                if(!otpVerified) return res.status(400).send({success: false, message: "OTP not verified"});
 
                 if(otpVerified){
-                    const refCode = refCodeGen().toString()
-                    const user = new User({phone: phone, tempParent: referralCode, refCode: refCode})
-                    await user.save()
-                    res.status(201).send({success: true, message: "Registration Successfull", user})
-                }
-                else{
-                    res.status(400).send({success: false, message: "OTP not verified"})
+                    const refCode = refCodeGen().toString();
+                    const user = new User({phone: phone, tempParent: referralCode, refCode: refCode});
+                    await user.save();
+                    res.status(201).send({success: true, message: "Registration Successfull", user});
                 }
                 
             } catch (error) {
-                res.status(400).send({success: false, message: "Registration Failed"})
+                return res.status(400).send({success: false, message: "Registration Failed"});
             }
         }
     } catch (error) {
-        res.status(400).send({success: false, message: "Something went wrong",error: error.message})
+        res.status(400).send({success: false, message: "Something went wrong",error: error.message});
     }
 }
 

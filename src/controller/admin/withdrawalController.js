@@ -1,19 +1,18 @@
-const Product = require("../models/productModel");
-const User = require("../models/userModel");
-const Withdrawal = require("../models/withdrawalModel");
+const User = require("../../models/userModel");
+const Withdrawal = require("../../models/withdrawalModel");
 
 
-//Adding product
-const addProduct = async(req,res)=>{
-    const { title, parentCommission, grandParentCommission, price, description } = req.body;
+const withdrawalRequests= async (req,res)=>{
     try {
-      const product = new Product({ title, parentCommission, grandParentCommission, price, description });
-      await product.save();
-      res.status(201).json(product);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
+      const requests = await Withdrawal.find({paymentStatus: "Pending"});
+      if(!requests) return res.status(404).json({message: "Requests not found"});
+
+      res.status(200).json({success: true, requests: requests});
+    } catch (error) {
+      res.status(500).json({message: error.message});
     }
-  }
+}
+
 
 
 const paidAcknowledgement = async (req,res)=>{
@@ -40,4 +39,15 @@ const paidAcknowledgement = async (req,res)=>{
       res.status(500).json({message: error.message})
     }
  }
-module.exports = { addProduct, paidAcknowledgement };
+
+ const completedWithdrawal=async(req,res)=>{
+try {
+  const withdrawal= await Withdrawal.find({paymentStatus: "Success"})
+  res.status(200).json({success: true, withdrawal})
+  
+} catch (error) {
+  res.status(500).json({message: error.message})
+}
+ }
+
+ module.exports = {paidAcknowledgement, withdrawalRequests, completedWithdrawal}
