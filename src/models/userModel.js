@@ -8,6 +8,7 @@ const userSchema = mongoose.Schema({
       email: {type: String},
       dateOfBirth: {type: Date},
       gender: {type: String},
+      profileImage: {type: String},
       address: {
         firstLine: {type: String},
         city: {type: String},
@@ -26,6 +27,7 @@ const userSchema = mongoose.Schema({
     },
 
     kycDetails: {
+      kycStatus: {type: String, default: "Pending"},
       aadharNumber: {type: Number},
       panNumber: {type: Number},
       aadharProof: {type: String},

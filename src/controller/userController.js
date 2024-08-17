@@ -3,10 +3,14 @@ const User = require("../models/userModel")
 const Withdrawal = require("../models/withdrawalModel")
 
 const payment= async(req,res)=>{
-    const {userId, productId, amount} = req.body;
+    const {userId, productId, amount, paymentProof} = req.body;
 
     try {
-        const payment = new Payment({userId,productId,amount});
+        const pendingPayment = await Payment.findOne({userId: userId, paymentStatus: 'Pending'});
+        console.log(pendingPayment)
+        if(pendingPayment) return res.status(400).json({message: "Can not request order as previous payment is pending"});
+
+        const payment = new Payment({userId,productId,amount, paymentProof});
         await payment.save();
         res.status(201).json(payment);
     } catch (error) {

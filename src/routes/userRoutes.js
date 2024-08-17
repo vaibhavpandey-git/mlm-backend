@@ -1,6 +1,7 @@
 const Express = require('express');
 const {payment, withdrawalRequest, updateUserDetails, userDetails } = require('../controller/userController');
 const upload = require('../middlewares/upload');
+const userFileUpload = require('../controller/user/userUploadController');
 
 const userRoute = Express.Router();
 
@@ -9,9 +10,6 @@ userRoute.post('/withdrawalrequest', withdrawalRequest);
 userRoute.post('/update/userdetails', updateUserDetails);
 userRoute.get('/userdetails', userDetails);
 
-userRoute.post('/upload', upload.single('file'),(req,res)=>{
-    console.log(req.body);
-    console.log(req.file);
-});
+userRoute.post('/upload', upload.single('file'), userFileUpload);
 
 module.exports = userRoute
