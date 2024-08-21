@@ -1,6 +1,7 @@
 const Payment = require("../models/paymentModel")
 const User = require("../models/userModel")
-const Withdrawal = require("../models/withdrawalModel")
+const Withdrawal = require("../models/withdrawalModel");
+const sendOTP = require("../utility/sendOtp");
 
 const payment= async(req,res)=>{
     const {userId, productId, amount, paymentProof} = req.body;
@@ -94,6 +95,13 @@ const userDetails= async (req,res)=>{
     }
 }
 
+const testOtp= async (req,res)=>{
+    const phoneNumber = '+919354716138';
+    const otp = await sendOTP(phoneNumber);
+
+    res.status(200).json({SENT_OTP: otp});
+}
 
 
-module.exports = {payment, withdrawalRequest, updateUserDetails, userDetails}
+
+module.exports = {payment, withdrawalRequest, updateUserDetails, userDetails, testOtp}

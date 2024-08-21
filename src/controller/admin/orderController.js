@@ -54,12 +54,14 @@ async function applyReferral(refCode, orderId, user, product){
     parent.products.at(-1).referrals.push({userId: user._id, orderId});
     user.products.at(-1).parentId = parent._id;
     if(referralsLength == 2) parent.canRefer = false;
-    await commissionDistribution(parent, product);
+    await commissionDistribution(parent, product,user._id);
+    parent.products.at(-1).allRefs.push(user._id);
     await parent.save();
     await user.save();
 }
 
-const commissionDistribution = async (parent, product)=>{
+
+const commissionDistribution = async (parent, product,userId)=>{
     parent.balance += product.price * product.parentCommission;
     if(parent.products.at(-1).parentId){
         const grandParent = await User.findById(parent.products.at(-1).parentId);
@@ -70,6 +72,7 @@ const commissionDistribution = async (parent, product)=>{
             grandParent.canBuy = true;
             grandParent.products.at(-1).isActive = false;
         }
+        grandParent.products.at(-1).allRefs.push(userId);
         await grandParent.save();
     }
 }
@@ -77,24 +80,40 @@ const commissionDistribution = async (parent, product)=>{
 const canReferred = async (parent, user) => {
     if(!parent?.canRefer) return false;
     const activeProduct = parent.products.at(-1);
-    const referrals = activeProduct.referrals;
-    const userId = user._id
-    for(let i = 0; i < referrals.length; i++){
-        if(referrals[i].userId === userId) return false;
-    }
-    if(activeProduct.parentId){
+    // const referrals = activeProduct.referrals;
+    // const userId = user._id
+    // for(let i = 0; i < referrals.length; i++){
+    //     if(referrals[i].userId === userId) return false;
+    // }
+    // if(activeProduct.parentId){
+    //     const grandParent = await User.findById(parent.products.at(-1).parentId);
+    //     const referrals = grandParent.products.at(-1).referrals;
+    //     for(let i = 0; i < referrals.length; i++){
+    //         if(referrals[i].userId === userId) return false;
+    //         const user = await User.findById(referrals[i].userId);
+    //         const activeProduct = user.products.at(-1);
+    //         const childReferrals = activeProduct.referrals;
+    //         for(let i = 0; i < childReferrals.length; i++){
+    //             if(childReferrals[i].userId === userId) return false;
+    //         }
+    //     }
+    // } 
+    
+    const foundMatch = activeProduct.allRefs.find((ref)=> ref == user._id);
+    if(foundMatch) return false;
+
+    if(!foundMatch && activeProduct.parentId){
         const grandParent = await User.findById(parent.products.at(-1).parentId);
-        const referrals = grandParent.products.at(-1).referrals;
-        for(let i = 0; i < referrals.length; i++){
-            if(referrals[i].userId === userId) return false;
-            const user = await User.findById(referrals[i].userId);
-            const activeProduct = user.products.at(-1);
-            const childReferrals = activeProduct.referrals;
-            for(let i = 0; i < childReferrals.length; i++){
-                if(childReferrals[i].userId === userId) return false;
-            }
+        const activeProduct = grandParent.products.at(-1);
+        const foundMatch = activeProduct.allRefs.find((ref)=> ref == user._id);
+        if(foundMatch) {
+            return false;
+        }
+        else {
+            return true;
         }
     }
+    
     return true;
 }
 
@@ -115,12 +134,24 @@ const isCycleCompleted = async (user) => {
 }
 
 
-const rejectOrder = async(req, res)=>{
-    const {userId} = req.query;
+
+const approvedOrders= async(req,res)=>{
+    const {orderId, userId} = req.query
     try {
-        
+        if(orderId){
+            const order = await Order.findById(orderId);
+            if(!order) return res.status(404).json({message: "Order not found"});
+            return res.status(200).json(order);
+        }
+        else if(userId){
+            const orders = await Order.find({userId: userId});
+            if(orders.length == 0) return res.status(404).json({message: "No order found for this user"})
+            return res.status(200).json(orders);
+        }
+        const orders = await Order.find();
+        res.status(200).json(orders);
     } catch (error) {
-        res.status(500).json({})
+        res.status(500).json({message: error.message});
     }
 }
-module.exports = {paymentRequests, approveOrder}
+module.exports = {paymentRequests, approveOrder, approvedOrders}

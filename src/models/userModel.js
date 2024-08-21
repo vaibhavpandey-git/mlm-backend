@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const userSchema = mongoose.Schema({
 
-    phone: {type: Number, required: true, unique: true},
+    phone: {type: String, required: true, unique: true},
     personalDetails:{
       name: {type: String},
       email: {type: String},
@@ -38,6 +38,7 @@ const userSchema = mongoose.Schema({
 
     products: [
       {
+        allRefs: [String],
         parentId: {type: String},
         orderId: {type: String},
         productId: {type: String},
