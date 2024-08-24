@@ -111,9 +111,8 @@ const paymentRequests= async (req,res)=>{
 
 
 const withdrawals = async (req, res) => {
+  const { status, withdrawalId } = req.query;
   try {
-    
-    const { status, withdrawalId } = req.query;
     const validStatuses = ["Pending", "Rejected", "Success"];
 
     let withdrawals

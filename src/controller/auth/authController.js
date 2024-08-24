@@ -3,7 +3,7 @@ const User = require("../../models/userModel")
 const referralCodes = require('referral-codes')
 const sendOTP = require("../../utility/otpUtils/sendOtp")
 const verifyOtp = require("../../utility/otpUtils/verifyOtp")
-const { verifyPassword } = require("../../utility/hashUtils/bcrypt")
+const { verifyPassword, hashPassword } = require("../../utility/hashUtils/bcrypt")
 const JWT = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -34,7 +34,6 @@ const login= async(req,res)=>{
     res.status(500).json({ error: 'Server error' });
   }
 }
-
 
 
 
@@ -72,12 +71,33 @@ const generateOtp= async (req,res)=>{
         const otpCode = await sendOTP(phone);
         if(!otpCode) return res.status(400).json("Something went wrong while sending otp");
         
+        await OTP.findOneAndDelete({phone: phone, otpCode: otpCode});
+
         const otp = new OTP({phone: phone, otpCode: otpCode});
         await otp.save();
-        return res.status(200).json({success: true, message: "OTP sent successfully"});
+        
+        return res.status(200).json({ message: "OTP sent successfully" });
     } catch (error) {
         res.status(500).json({message: error.message});
     }
 }
 
-module.exports = {login, userRegister, generateOtp}
+
+const resetPassword= async(req,res)=>{
+  const {phone, otp, password} = req.body;
+  try {
+      const user = await User.findOne({phone});
+      if(!user) return res.status(404).json({message: "User not found"});
+
+      const otpVerified = await verifyOtp(otp);
+      if(!otpVerified) return res.status(400).json({message: "otp invalid"});
+
+      const hashedPassword = await hashPassword(password);
+      user.password = hashedPassword;
+      return res.status(200).json({message: "Password successfully changed, login with new password"});
+  } catch (error) {
+      return res.status(500).json({message: err.message});
+  }
+}
+
+module.exports = {login, userRegister, generateOtp, resetPassword}

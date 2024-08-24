@@ -1,10 +1,10 @@
 const Express = require('express');
-const { userRegister, generateOtp } = require('../controller/auth/authController');
+const { userRegister, generateOtp, login, resetPassword } = require('../controller/auth/authController');
 const authRoute = Express.Router();
 
-
+authRoute.post('/login', login);
 authRoute.post('/registration', userRegister);
-//generate otp
-authRoute.post('/user/generateotp', generateOtp);
+authRoute.post('/resetpassword', resetPassword);
+authRoute.post('/generateotp', generateOtp);
 
 module.exports = authRoute
