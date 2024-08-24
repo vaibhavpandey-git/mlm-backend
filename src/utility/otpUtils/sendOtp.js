@@ -25,5 +25,4 @@ const sendOTP = async (phoneNumber) => {
   }
 };
 
-sendOTP('917827295033')
 module.exports = sendOTP

@@ -1,13 +1,4 @@
-// const otpVerify =(otp)=>{
-//     if(otp == 123456){
-//         return true
-//     }
-//     else{
-//         return false
-//     }
-// }
-
-const OTP = require("../models/otpModel")
+const OTP = require("../../models/otpModel")
 
 const verifyOtp = async (phone, otpCode)=>{
     try {

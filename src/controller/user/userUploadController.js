@@ -1,4 +1,3 @@
-const Payment = require("../../models/paymentModel");
 const User = require("../../models/userModel");
 
 const userFileUpload = async (req,res)=>{
@@ -12,16 +11,17 @@ const userFileUpload = async (req,res)=>{
         if(!user) return res.status(404).json({message: "User not found while uploading file"});
 
         switch (uploadedFor) {
-            case 'Payment':
-                paymentUpload(user, file);
-                return res.status(200).json({ message: "Payment file uploaded" });
 
-            case 'Profile':
-                profileUpload(user, file);
+            case 'profile':
+                await profileUpload(user, file);
                 return res.status(200).json({ message: "Profile file uploaded" });
 
-            case 'KYC':
-                kycUpload(user, file);
+            case 'aadhar':
+                await aadharUpload(user, file);
+                return res.status(200).json({ message: "KYC file uploaded" });
+
+            case 'pan':
+                await panUpload(user, file);
                 return res.status(200).json({ message: "KYC file uploaded" });
 
             default:
@@ -33,19 +33,23 @@ const userFileUpload = async (req,res)=>{
     }
 }
 
-const paymentUpload= async (user, file)=>{
-    const payment = await Payment.findOne({userId: user._id, paymentStatus: 'Pending'});
-    payment.paymentProof = file.path;
-    console.log("Uploaded to Payment");
-    await payment.save();
-}
 
-const profileUpload=(user, file)=>{
+const profileUpload=async(user, file)=>{
+    user.personalDetails.profileImage = file.path;
     console.log("Uploaded to profile");
+    await user.save();
 }
 
-const kycUpload=(user, file)=>{
-    console.log("Uploaded to KYC");
+const aadharUpload= async(user, file)=>{
+    user.kycDetails.aadharProof = file.path;
+    console.log("Uploaded to aadhar");
+    await user.save();
 }
 
-module.exports = userFileUpload
+const panUpload= async(user, file)=>{
+    user.kycDetails.panProof = file.path;
+    console.log("Uploaded to Pan");
+    await user.save();
+}
+
+module.exports = {userFileUpload}

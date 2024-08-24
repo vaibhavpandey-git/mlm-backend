@@ -1,13 +1,14 @@
 const express = require('express');
-const authRoute = require('./routes/authRoutes');
 const dbConnect = require('./config/dbConfig');
-const adminRoute = require('./routes/adminRoutes');
-const userRoute = require('./routes/userRoutes');
 const cors = require('cors');
+const router = require('./routes');
 
 const app = express();
 require('dotenv').config();
 app.use(express.urlencoded({extended: false}));
+
+//making uploads public
+app.use('/uploads', express.static('uploads'));
 
 dbConnect();
 app.get('/',(req,res)=>{
@@ -20,9 +21,7 @@ app.use(cors())
 
 
 //auth, admin & user Routes
-app.use('/v1/api/auth',authRoute);
-app.use('/v1/api/admin', adminRoute);
-app.use('/v1/api/user', userRoute);
+app.use('/v1/api',router);
 
 app.listen(process.env.PORT,()=>{
     console.log(`Server running on PORT ${process.env.PORT}`);

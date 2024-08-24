@@ -2,21 +2,7 @@ const Order = require("../../models/orderModel");
 const Payment = require("../../models/paymentModel");
 const Product = require("../../models/productModel");
 const User = require("../../models/userModel");
-
-//list of payment requests to start a cycle from user (to buy product)
-const paymentRequests= async (req,res)=>{
-    try {
-        const payments = await Payment.find({paymentStatus: "Pending", isRejected: false});
-        if(!payments) return res.json({message: "No Payments Available"});
-
-        res.status(200).json({success: true, payments: payments});
-
-    } catch (error) {
-        res.status(500).json({success: false, message: error.message});
-    }
-}
-
-
+const Withdrawal = require("../../models/withdrawalModel");
 
 const approveOrder = async(req,res)=>{
     const {productId, userId, refCode, paymentId} = req.body
@@ -77,28 +63,10 @@ const commissionDistribution = async (parent, product,userId)=>{
     }
 }
 
+//checking array to find a match
 const canReferred = async (parent, user) => {
     if(!parent?.canRefer) return false;
-    const activeProduct = parent.products.at(-1);
-    // const referrals = activeProduct.referrals;
-    // const userId = user._id
-    // for(let i = 0; i < referrals.length; i++){
-    //     if(referrals[i].userId === userId) return false;
-    // }
-    // if(activeProduct.parentId){
-    //     const grandParent = await User.findById(parent.products.at(-1).parentId);
-    //     const referrals = grandParent.products.at(-1).referrals;
-    //     for(let i = 0; i < referrals.length; i++){
-    //         if(referrals[i].userId === userId) return false;
-    //         const user = await User.findById(referrals[i].userId);
-    //         const activeProduct = user.products.at(-1);
-    //         const childReferrals = activeProduct.referrals;
-    //         for(let i = 0; i < childReferrals.length; i++){
-    //             if(childReferrals[i].userId === userId) return false;
-    //         }
-    //     }
-    // } 
-    
+    const activeProduct = parent.products.at(-1); 
     const foundMatch = activeProduct.allRefs.find((ref)=> ref == user._id);
     if(foundMatch) return false;
 
@@ -113,7 +81,6 @@ const canReferred = async (parent, user) => {
             return true;
         }
     }
-    
     return true;
 }
 
@@ -135,23 +102,53 @@ const isCycleCompleted = async (user) => {
 
 
 
-const approvedOrders= async(req,res)=>{
-    const {orderId, userId} = req.query
+const paidAcknowledgement = async (req,res)=>{
+    const { userId, withdrawalId, UTR } = req.body
+
     try {
-        if(orderId){
-            const order = await Order.findById(orderId);
-            if(!order) return res.status(404).json({message: "Order not found"});
-            return res.status(200).json(order);
-        }
-        else if(userId){
-            const orders = await Order.find({userId: userId});
-            if(orders.length == 0) return res.status(404).json({message: "No order found for this user"})
-            return res.status(200).json(orders);
-        }
-        const orders = await Order.find();
-        res.status(200).json(orders);
+      const withdrawal = await Withdrawal.findById(withdrawalId);
+      const user = await User.findById(userId);
+
+      if(!withdrawal || !user) return res.status(404).json({message: "Withdrawal request or User not found"});
+      if(!user.balance >= withdrawal.requestedAmount || !withdrawal.paymentStatus == "Pending") return res.status(200).json({message: "Can't send acknowledgement"});
+      if(!withdrawal.requestedAmount >= 1000 || !UTR) return res.status(200).json({message: "Requested Amount is less than minimum withdrawalable amount or UTR not present"});
+
+      user.balance -= withdrawal.requestedAmount;
+      withdrawal.paymentDetails = {
+        UTR: UTR,
+        paidOn: Date.now()
+      };
+      withdrawal.paymentStatus = "Completed";
+      await withdrawal.save();
+      await user.save();
+      res.status(200).json({message: "Ackowledgement sent succuessfully"});
     } catch (error) {
-        res.status(500).json({message: error.message});
+      res.status(500).json({message: error.message})
     }
-}
-module.exports = {paymentRequests, approveOrder, approvedOrders}
+ }
+
+
+ const approveKyc= async(req,res)=>{
+    try {
+        const userId = req.query;
+        const user = await User.findById(userId);
+    
+        if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+    
+        if (user.kycDetails.kycStatus !== 'Pending') {
+          return res.status(400).json({ error: 'KYC is already approved or rejected' });
+        }
+    
+        user.kycDetails.kycStatus = 'Verified';
+        await user.save();
+    
+        res.json({ message: 'KYC approved successfully' });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+ }
+
+module.exports = {approveOrder, paidAcknowledgement, approveKyc}

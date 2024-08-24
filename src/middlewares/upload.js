@@ -2,7 +2,7 @@ const multer = require("multer");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, ".././public/uploads");
+    cb(null, "../../uploads");
   },
   filename: function (req, file, cb) {
     const uniqueNum = Math.floor(10000000 + Math.random() * 90000000);

@@ -1,8 +1,10 @@
 const mongoose = require('mongoose')
 
 const userSchema = mongoose.Schema({
-
+    role: {type: String, enum: ["admin", "user"]},
+    countryCode: {type: String, default: '+91'},
     phone: {type: String, required: true, unique: true},
+    password: {type: String},
     personalDetails:{
       name: {type: String},
       email: {type: String},
@@ -27,7 +29,7 @@ const userSchema = mongoose.Schema({
     },
 
     kycDetails: {
-      kycStatus: {type: String, default: "Pending"},
+      kycStatus: {type: String, enum: ['Pending', 'Rejected', 'Verified']},
       aadharNumber: {type: Number},
       panNumber: {type: Number},
       aadharProof: {type: String},
@@ -50,14 +52,14 @@ const userSchema = mongoose.Schema({
       }
     ],
 
-
     canBuy: {type: Boolean, default: true},
     
     refCode: {type: String, required: true, unique: true},
     canRefer: {type: Boolean, default: false},
 
     investment: {type: Number, default: 0},
-    balance: { type: Number, default: 0 }
+    balance: { type: Number, default: 0 },
+    token: {type: String}
 },{timestamps: true})
 
 const User = mongoose.model('user', userSchema)

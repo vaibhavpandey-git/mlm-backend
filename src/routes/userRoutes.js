@@ -1,17 +1,25 @@
 const Express = require('express');
-const {payment, withdrawalRequest, updateUserDetails, userDetails, testOtp } = require('../controller/userController');
+const { userWithdrawals, userDetails } = require('../controller/user/userFetchController');
+const { payment, withdrawalRequest } = require('../controller/user/userRequestController');
 const upload = require('../middlewares/upload');
-const userFileUpload = require('../controller/user/userUploadController');
+const { userFileUpload } = require('../controller/user/userUploadController');
 
 const userRoute = Express.Router();
 
-userRoute.post('/payment', payment);
-userRoute.post('/withdrawalrequest', withdrawalRequest);
-userRoute.post('/update/userdetails', updateUserDetails);
+
+//user fetch apis
+userRoute.post('/withdrawals', userWithdrawals);
 userRoute.get('/userdetails', userDetails);
 
+
+//user request apis
+userRoute.post('/payment', payment);
+userRoute.post('/withdrawalrequest', withdrawalRequest);
+
+
+//user file upload apis
 userRoute.post('/upload', upload.single('file'), userFileUpload);
 
-userRoute.post('/testotp', testOtp);
+
 
 module.exports = userRoute

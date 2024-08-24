@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const withdrawalSchema = mongoose.Schema({
     userId: {type: String, required: true},
-    paymentStatus: {type: String, default: "Pending"},
+    paymentStatus: {type: String, enum:['Pending', 'Rejected', 'Success'], default: "Pending"},
     requestedAmount: {type: Number},
     requestedOn: {type: Date, default: Date.now()},
     bankDetails: {

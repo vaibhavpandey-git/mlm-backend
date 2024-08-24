@@ -4,9 +4,8 @@ const paymentSchema = mongoose.Schema({
     userId: {type: String, required: true},
     productId: {type: String, required: true},
     amount: {type: Number},
-    isRejected: {type: Boolean, default: false},
-    paymentStatus: {type: String, default: "Pending"},
-    paymentProof: {type: String, default: "to be completed"},
+    paymentStatus: {type: String, enum: ['Pending', 'Rejected', 'Success']},
+    paymentProof: {type: String},
     date: {type: Date, default: Date.now}
 },{timestamps: true})
 
