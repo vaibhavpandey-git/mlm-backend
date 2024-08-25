@@ -71,7 +71,8 @@ const userRegister= async(req,res)=>{
 const generateOtp= async (req,res)=>{
     const {phone} = req.body;
     try {
-        const otpCode = await sendOTP(phone);
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        // const otpCode = await sendOTP(phone);
         if(!otpCode) return res.status(400).json("Something went wrong while sending otp");
         
         const oldOtp = await OTP.findOne({phone: phone});
@@ -79,7 +80,7 @@ const generateOtp= async (req,res)=>{
         const otp = new OTP({phone: phone, otpCode: otpCode});
         await otp.save();
         
-        return res.status(200).json({ message: "OTP sent successfully" });
+        return res.status(200).json({ message: "OTP sent successfully", otpCode: otpCode });
     } catch (error) {
         res.status(500).json({message: error.message});
     }

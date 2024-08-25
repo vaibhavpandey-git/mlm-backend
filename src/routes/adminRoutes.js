@@ -29,7 +29,7 @@ adminRoute.post('/addproduct', upload.single('file'), addProduct);
 //reject apis for admin
 adminRoute.put('/rejectkyc', rejectKyc);
 adminRoute.post('/rejectpayment',rejectPayment);
-adminRoute.put('rejectwithdrawal',rejectWithdrawal);
+adminRoute.put('/rejectwithdrawal',rejectWithdrawal);
 
 
 //user apis for admin
