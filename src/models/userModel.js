@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const userSchema = mongoose.Schema({
-    role: {type: String, enum: ["admin", "user"]},
+    role: {type: String, enum: ["admin", "user"], default: 'user'},
     countryCode: {type: String, default: '+91'},
     phone: {type: String, required: true, unique: true},
     password: {type: String},

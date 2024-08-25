@@ -78,6 +78,7 @@ const updatePassword= async (req,res)=>{
 
 const setPassword=async(req,res)=>{
     const {userId} = req.user;
+    console.log(req.user);
     const { password } = req.body;
 
     if (!userId || !password) {

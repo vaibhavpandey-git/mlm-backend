@@ -5,7 +5,7 @@ const User = require("../../models/userModel");
 const Withdrawal = require("../../models/withdrawalModel");
 
 const approveOrder = async(req,res)=>{
-    const {productId, userId, refCode, paymentId} = req.body
+    const {productId, userId, paymentId} = req.body
     try {
         const user = await User.findById(userId);
         const product = await Product.findById(productId);
@@ -23,7 +23,7 @@ const approveOrder = async(req,res)=>{
 
         await order.save();
         await user.save();
-        if(refCode) await applyReferral(refCode, order._id, user, product);
+        if(user.tempParent) await applyReferral(refCode, order._id, user, product);
         res.status(201).json({message: "Purchased successfully"})
 
     } catch(error){

@@ -103,9 +103,9 @@ const paymentRequests= async (req,res)=>{
       const payments = await Payment.find({paymentStatus: "Pending", isRejected: false});
       if(!payments) return res.json({message: "No Payments Available"});
 
-      res.status(200).json({success: true, payments: payments});
+      res.status(200).json({ payments: payments });
   } catch (error) {
-      res.status(500).json({success: false, message: error.message});
+      res.status(500).json({ message: error.message });
   }
 }
 

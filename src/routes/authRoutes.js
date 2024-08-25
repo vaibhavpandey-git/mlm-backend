@@ -3,7 +3,7 @@ const { userRegister, generateOtp, login, resetPassword } = require('../controll
 const authRoute = Express.Router();
 
 authRoute.post('/login', login);
-authRoute.post('/registration', userRegister);
+authRoute.post('/register', userRegister);
 authRoute.post('/resetpassword', resetPassword);
 authRoute.post('/generateotp', generateOtp);
 
