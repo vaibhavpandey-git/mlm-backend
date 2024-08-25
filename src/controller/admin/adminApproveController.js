@@ -21,6 +21,8 @@ const approveOrder = async(req,res)=>{
         user.canRefer = true;
         user.investment += payment.amount;
 
+        if(payment.tempParent) user.tempParent = payment.tempParent;
+        
         await order.save();
         await user.save();
         if(user.tempParent) await applyReferral(refCode, order._id, user, product);

@@ -27,7 +27,7 @@ const getProduct= async (req,res)=>{
 
 
 const updateDetails= async (req,res)=>{
-    const userId = req.user;
+    const {userId} = req.user;
     const { personalDetails, bankDetails } = req.body;
 
     try {

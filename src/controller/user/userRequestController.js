@@ -4,7 +4,7 @@ const User = require("../../models/userModel");
 const Withdrawal = require("../../models/withdrawalModel");
 
 const payment= async(req,res)=>{
-    const { userId, productId } = req.body;
+    const { userId, productId, referralCode } = req.body;
     const {file} = req.file;
 
     try {
@@ -17,7 +17,7 @@ const payment= async(req,res)=>{
         const amount = product.price;
         const paymentProof = file.path;
 
-        const payment = new Payment({userId,productId,amount, paymentProof, paymentStatus: 'Pending'});
+        const payment = new Payment({userId,productId,amount, paymentProof,tempParent: referralCode, paymentStatus: 'Pending'});
         await payment.save();
         res.status(201).json(payment);
     } catch (error) {
