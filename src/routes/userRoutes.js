@@ -1,5 +1,5 @@
 const Express = require('express');
-const { userWithdrawals, userDetails } = require('../controller/user/userFetchController');
+const { userWithdrawals, userDetails, payments } = require('../controller/user/userFetchController');
 const { payment, withdrawalRequest } = require('../controller/user/userRequestController');
 const upload = require('../middlewares/upload');
 const { userFileUpload } = require('../controller/user/userUploadController');
@@ -10,6 +10,7 @@ const userRoute = Express.Router();
 //user fetch apis
 userRoute.post('/withdrawals', userWithdrawals);
 userRoute.get('/userdetails', userDetails);
+userRoute.get('/payments', payments);
 
 
 //user request apis
