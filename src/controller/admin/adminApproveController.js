@@ -5,12 +5,15 @@ const User = require("../../models/userModel");
 const Withdrawal = require("../../models/withdrawalModel");
 
 const approveOrder = async(req,res)=>{
-    const {productId, userId, paymentId} = req.body
+    const {userId, paymentId} = req.body
     try {
-        const user = await User.findById(userId);
-        const product = await Product.findById(productId);
         const payment = await Payment.findById(paymentId);
 
+        const productId = payment.productId;
+        const userId = payment.userId;
+
+        const user = await User.findById(userId);
+        const product = await Product.findById(productId);
         if(!user || !product || !payment) {return res.status(404).send('User or Product not found')};
 
         if(!user.canBuy) return res.status(200).json({message: "User can't buy product as he has an active product with incomplete cycle"});
@@ -22,7 +25,7 @@ const approveOrder = async(req,res)=>{
         user.investment += payment.amount;
 
         if(payment.tempParent) user.tempParent = payment.tempParent;
-        
+
         await order.save();
         await user.save();
         if(user.tempParent) await applyReferral(refCode, order._id, user, product);

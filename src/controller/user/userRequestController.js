@@ -4,12 +4,13 @@ const User = require("../../models/userModel");
 const Withdrawal = require("../../models/withdrawalModel");
 
 const payment= async(req,res)=>{
-    const { userId, productId, referralCode } = req.body;
-    const {file} = req.file;
+    const {userId} = req.user;
+    const { productId, referralCode } = req.body;
+    const file = req.file;
 
     try {
+        const user = await User.findById(userId);
         const pendingPayment = await Payment.findOne({userId: userId, paymentStatus: 'Pending'});
-        console.log(pendingPayment)
         if(pendingPayment) return res.status(400).json({message: "Can not request order as previous payment is pending"});
         const product = Product.findById(productId);
         if(!product) return res.status(404).json({message: "Product not found"});
@@ -17,7 +18,16 @@ const payment= async(req,res)=>{
         const amount = product.price;
         const paymentProof = file.path;
 
-        const payment = new Payment({userId,productId,amount, paymentProof,tempParent: referralCode, paymentStatus: 'Pending'});
+        const payment = new Payment({
+          userId,
+          productId,
+          userName: user.personalDetails.name,
+          userPhone: user.phone,
+          amount,
+          paymentProof,
+          tempParent: referralCode,
+          paymentStatus: "Pending",
+        });
         await payment.save();
         res.status(201).json(payment);
     } catch (error) {
@@ -29,7 +39,8 @@ const payment= async(req,res)=>{
 
 
 const withdrawalRequest= async (req,res)=>{
-    const {userId, requestedAmount } = req.body;
+    const {userId} = req.user;
+    const { requestedAmount } = req.body;
     try {
         const user = await User.findById(userId);
         if(!user) return res.status(404).send({message: "User not found while requesting withdrawal request"});

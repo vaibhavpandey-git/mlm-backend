@@ -1,7 +1,8 @@
 const User = require("../../models/userModel");
 
 const userFileUpload = async (req,res)=>{
-    const {userId, uploadedFor} = req.body;
+    const {userId} = re
+    const { uploadedFor } = req.body;
     const file = req.file;
     try {
 

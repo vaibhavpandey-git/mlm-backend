@@ -13,7 +13,7 @@ userRoute.get('/userdetails', userDetails);
 
 
 //user request apis
-userRoute.post('/payment', payment);
+userRoute.post('/payment', upload.single('file'), payment);
 userRoute.post('/withdrawalrequest', withdrawalRequest);
 
 
