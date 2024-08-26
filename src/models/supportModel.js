@@ -2,7 +2,9 @@ const mongooose = require('mongoose')
 
 const supportSchema = mongooose.Schema({
     userId: {type: String, required: true},
-    message: {type: String, required: true}
+    message: {type: String, required: true},
+    phone: {type: String, required: true},
+    name: {type: String, required: true}
 },{timestamps: true})
 
 const Support = mongooose.model('support', supportSchema);

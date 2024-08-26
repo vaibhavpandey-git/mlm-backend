@@ -13,20 +13,34 @@ const fetchUsers= async (req,res)=>{
     // If no query string, return all users
     if (!userId && !isUser && !iskyc) {
       const users = await User.find();
-      return res.json(users);
+      if(users.length == 0) return res.status(404).json({message: "No user found"});
+
+      for(let i=0; i< users.length; i++){
+        delete users[i].password
+        delete users[i].tempParent
+        delete users[i].canBuy
+        delete users[i].canRefer
+        delete users[i].token
+      }
+
+      return res.status(200).json(users);
     }
 
     //If userId is provided, return the specific user
-    if (userId) {
+    else if (userId) {
       const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
+      if (!user) return res.status(404).json({ message: 'User not found' });
+        delete user.password
+        delete user.tempParent
+        delete user.canBuy
+        delete user.canRefer
+        delete user.token
+
       return res.json(user);
     }
 
     //If isUser is provided, return active or inactive users
-    if (isUser) {
+    else if (isUser) {
       let isActive;
       if (isUser.toLowerCase() === 'active') {
         isActive = true;
@@ -41,7 +55,16 @@ const fetchUsers= async (req,res)=>{
         products: { $exists: true, $ne: [] },
         $expr: { $eq: [{ $arrayElemAt: ['$products.isActive', -1] }, isActive] }
       });
-      return res.json(users);
+      if(users.length == 0) return res.status(404).json(message: "No user found with specified filter");
+      for(let i=0; i< users.length; i++){
+        delete users[i].password
+        delete users[i].tempParent
+        delete users[i].canBuy
+        delete users[i].canRefer
+        delete users[i].token
+      }
+
+      return res.status(200).json(users);
     }
     else if (iskyc) {
 
@@ -59,7 +82,13 @@ const fetchUsers= async (req,res)=>{
       const users = await User.find(filter, { 'personalDetails.name': 1, 'kycDetails': 1, 'role': 1 });
 
       if (users.length === 0) return res.status(404).json({ success: false, message: 'No users found with the specified KYC status.'});
-
+      for(let i=0; i< users.length; i++){
+        delete users[i].password
+        delete users[i].tempParent
+        delete users[i].canBuy
+        delete users[i].canRefer
+        delete users[i].token
+      }
       return res.status(200).json(users);
     
   }
@@ -147,6 +176,7 @@ const viewSupport = async (req,res)=>{
       }
       
       queries = await Support.find();
+      if(queries.length == 0) return res.status(404).json({message: "No queries found"});
       return res.status(200).json({success: true, queries});
 
   } catch (error) {

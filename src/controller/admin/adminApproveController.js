@@ -5,7 +5,7 @@ const User = require("../../models/userModel");
 const Withdrawal = require("../../models/withdrawalModel");
 
 const approveOrder = async(req,res)=>{
-    const {userId, paymentId} = req.body
+    const { paymentId } = req.query;
     try {
         const payment = await Payment.findById(paymentId);
 
@@ -28,7 +28,9 @@ const approveOrder = async(req,res)=>{
 
         await order.save();
         await user.save();
+        payment.paymentStatus = 'Success';
         if(user.tempParent) await applyReferral(refCode, order._id, user, product);
+        Payment.save();
         res.status(201).json({message: "Purchased successfully"})
 
     } catch(error){
@@ -138,18 +140,14 @@ const paidAcknowledgement = async (req,res)=>{
         const userId = req.query;
         const user = await User.findById(userId);
     
-        if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-        }
+        if (!user) return res.status(404).json({ error: 'User not found' });
     
-        if (user.kycDetails.kycStatus !== 'Pending') {
-          return res.status(400).json({ error: 'KYC is already approved or rejected' });
-        }
+        if (user.kycDetails.kycStatus !== 'Pending') return res.status(400).json({ error: 'KYC is already approved or rejected' });
     
         user.kycDetails.kycStatus = 'Verified';
         await user.save();
     
-        res.json({ message: 'KYC approved successfully' });
+        res.status(200).json({ message: 'KYC approved successfully' });
       } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
