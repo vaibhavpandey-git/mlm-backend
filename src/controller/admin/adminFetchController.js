@@ -55,7 +55,7 @@ const fetchUsers= async (req,res)=>{
         products: { $exists: true, $ne: [] },
         $expr: { $eq: [{ $arrayElemAt: ['$products.isActive', -1] }, isActive] }
       });
-      if(users.length == 0) return res.status(404).json(message: "No user found with specified filter");
+      if(users.length == 0) return res.status(404).json({message: "No user found with specified filter"});
       for(let i=0; i< users.length; i++){
         delete users[i].password
         delete users[i].tempParent
