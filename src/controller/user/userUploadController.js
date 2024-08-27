@@ -5,11 +5,10 @@ const userFileUpload = async (req,res)=>{
     const { uploadedFor } = req.body;
     const file = req.file;
     try {
-
         console.log("file", req.file, "req.Body", req.body);
         const user = await User.findById(userId);
 
-        if(!user) return res.status(404).json({message: "User not found while uploading file"});
+        if(!user) return res.status(200).json({message: "User not found while uploading file"});
 
         switch (uploadedFor) {
 
@@ -30,7 +29,7 @@ const userFileUpload = async (req,res)=>{
         }
     } catch (error) {
         console.log("error", error.message);
-        res.status(400).json({message: error.message});
+        res.status(500).json({message: error.message});
     }
 }
 

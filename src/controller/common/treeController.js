@@ -4,13 +4,12 @@ const memberTree= async(req,res)=>{
     const {userId, orderId} = req.query;
     try {
         const treeData = await treeTraverse(userId, orderId);
-        if(!treeData) res.status(404).json({message: "No tree found"});
+        if(!treeData) res.status(200).json({message: "No tree found"});
         return res.status(200).json(treeData);
     } catch (error) {
         return res.status(500).json({message: error.message});
     }
 }
-
 
 
 const treeTraverse= async(userId, orderId)=>{

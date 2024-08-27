@@ -11,9 +11,9 @@ const payment= async(req,res)=>{
     try {
         const user = await User.findById(userId);
         const pendingPayment = await Payment.findOne({userId: userId, paymentStatus: 'Pending'});
-        if(pendingPayment) return res.status(400).json({message: "Can not request order as previous payment is pending"});
+        if(pendingPayment) return res.status(200).json({message: "Can not request order as previous payment is pending"});
         const product = Product.findById(productId);
-        if(!product) return res.status(404).json({message: "Product not found"});
+        if(!product) return res.status(200).json({message: "Product not found"});
 
         const amount = product.price;
         const paymentProof = file.path;
@@ -43,7 +43,7 @@ const withdrawalRequest= async (req,res)=>{
     const { requestedAmount } = req.body;
     try {
         const user = await User.findById(userId);
-        if(!user) return res.status(404).send({message: "User not found while requesting withdrawal request"});
+        if(!user) return res.status(200).send({message: "User not found while requesting withdrawal request"});
 
         const canRequest = async ()=>{
             if(requestedAmount <= user.balance && requestedAmount >= 1000){

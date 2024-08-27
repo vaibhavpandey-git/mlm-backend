@@ -13,7 +13,7 @@ const fetchUsers= async (req,res)=>{
     // If no query string, return all users
     if (!userId && !isUser && !iskyc) {
       const users = await User.find();
-      if(users.length == 0) return res.status(404).json({message: "No user found"});
+      if(users.length == 0) return res.status(200).json({message: "No user found"});
 
       for(let i=0; i< users.length; i++){
         delete users[i].password
@@ -29,7 +29,7 @@ const fetchUsers= async (req,res)=>{
     //If userId is provided, return the specific user
     else if (userId) {
       const user = await User.findById(userId);
-      if (!user) return res.status(404).json({ message: 'User not found' });
+      if (!user) return res.status(200).json({ message: 'User not found' });
         delete user.password
         delete user.tempParent
         delete user.canBuy
@@ -55,7 +55,7 @@ const fetchUsers= async (req,res)=>{
         products: { $exists: true, $ne: [] },
         $expr: { $eq: [{ $arrayElemAt: ['$products.isActive', -1] }, isActive] }
       });
-      if(users.length == 0) return res.status(404).json({message: "No user found with specified filter"});
+      if(users.length == 0) return res.status(200).json({message: "No user found with specified filter"});
       for(let i=0; i< users.length; i++){
         delete users[i].password
         delete users[i].tempParent
@@ -81,7 +81,7 @@ const fetchUsers= async (req,res)=>{
 
       const users = await User.find(filter, { 'personalDetails.name': 1, 'kycDetails': 1, 'role': 1 });
 
-      if (users.length === 0) return res.status(404).json({ success: false, message: 'No users found with the specified KYC status.'});
+      if (users.length === 0) return res.status(200).json({ success: false, message: 'No users found with the specified KYC status.'});
       for(let i=0; i< users.length; i++){
         delete users[i].password
         delete users[i].tempParent
@@ -104,12 +104,12 @@ const approvedOrders= async(req,res)=>{
   try {
       if(orderId){
           const order = await Order.findById(orderId);
-          if(!order) return res.status(404).json({message: "Order not found"});
+          if(!order) return res.status(200).json({message: "Order not found"});
           return res.status(200).json(order);
       }
       else if(userId){
           const orders = await Order.find({userId: userId});
-          if(orders.length == 0) return res.status(404).json({message: "No order found for this user"})
+          if(orders.length == 0) return res.status(200).json({message: "No order found for this user"})
           return res.status(200).json(orders);
       }
       const orders = await Order.find();
@@ -154,7 +154,7 @@ const withdrawals = async (req, res) => {
         return res.status(400).json({ message: "Invalid status" });
       }
       withdrawals = await Withdrawal.find({ paymentStatus: status });
-      if (!requests || requests.length === 0) return res.status(404).json({ message: "Requests not found" });
+      if (!requests || requests.length === 0) return res.status(200).json({ message: "Requests not found" });
 
     }
     res.status(200).json(withdrawals);
@@ -176,7 +176,7 @@ const viewSupport = async (req,res)=>{
       }
       
       queries = await Support.find();
-      if(queries.length == 0) return res.status(404).json({message: "No queries found"});
+      if(queries.length == 0) return res.status(200).json({message: "No queries found"});
       return res.status(200).json({success: true, queries});
 
   } catch (error) {

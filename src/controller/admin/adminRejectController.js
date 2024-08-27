@@ -13,7 +13,7 @@ const rejectKyc = async(req,res)=>{
           { new: true }
         );
         if (!user) {
-          return res.status(404).json({ message: 'User not found' });
+          return res.status(200).json({ message: 'User not found' });
         }
         res.json({ message: 'KYC details deleted successfully', user });
 
@@ -28,11 +28,11 @@ const rejectPayment= async ()=>{
     const payment = await Payment.findById(paymentId);
 
     if (!payment) {
-      return res.status(404).json({ error: 'Payment not found' });
+      return res.status(200).json({ error: 'Payment not found' });
     }
 
     if (payment.paymentStatus == 'Rejected') {
-      return res.status(400).json({ error: 'Payment is already rejected or successful' });
+      return res.status(200).json({ error: 'Payment is already rejected or successful' });
     }
 
     payment.paymentStatus = 'Rejected';
@@ -53,7 +53,7 @@ const rejectWithdrawal = async(req, res)=>{
     const withdrawal = await Withdrawal.findByIdAndUpdate(withdrawalId, { $set: { paymentStatus: "Rejected" } }, { new: true });
 
     if (!withdrawal) {
-      return res.status(404).json({ message: "Withdrawal not found" });
+      return res.status(200).json({ message: "Withdrawal not found" });
     }
 
     res.json({ message: "Withdrawal rejected successfully" });

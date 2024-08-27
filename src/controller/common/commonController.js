@@ -2,29 +2,6 @@ const Product = require("../../models/productModel");
 const User = require("../../models/userModel");
 const { hashPassword, verifyPassword } = require("../../utility/hashUtils/bcrypt");
 
-const getProduct= async (req,res)=>{
-    const {productId} = req.body;
-    try {
-
-        if(productId){
-            const product = await Product.findById(productId);
-            const fileUrl = `${req.protocol}://${req.get('host')}/${product.image}`;
-            product.image = fileUrl;
-            return res.status(200).json(product);
-        }
-        
-        const products = await Product.find();
-
-        for(let i=0; i<products.length; i++){
-            let fileUrl = `${req.protocol}://${req.get('host')}/${products[i].image}`;
-            products[i].image = fileUrl;
-        }
-        return res.status(200).json(products);
-    } catch (error) {
-      res.status(500).json({ message: 'Error fetching products', error });
-    }
-}
-
 
 const updateDetails= async (req,res)=>{
     const {userId} = req.user;
@@ -56,7 +33,7 @@ const updatePassword= async (req,res)=>{
     try {
       const user = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(200).json({ message: 'User not found' });
       }
 
       const isMatch = await verifyPassword(oldPassword, user.password);
@@ -89,7 +66,7 @@ const setPassword=async(req,res)=>{
       const passwordHash = await hashPassword(password);
       const user = await User.findById(userId);
   
-      if (!user) return res.status(404).json({ message: 'User not found' });
+      if (!user) return res.status(200).json({ message: 'User not found' });
 
       user.password = passwordHash;
       await user.save();
@@ -103,4 +80,4 @@ const setPassword=async(req,res)=>{
 }
 
 
-module.exports = {getProduct, updateDetails, updatePassword, setPassword}
+module.exports = { updateDetails, updatePassword, setPassword}

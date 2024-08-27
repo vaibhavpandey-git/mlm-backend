@@ -1,7 +1,7 @@
 const Express = require('express');
 const { approveOrder, paidAcknowledgement, approveKyc } = require('../controller/admin/adminApproveController');
 const { fetchUsers, approvedOrders, paymentRequests, withdrawals, viewSupport } = require('../controller/admin/adminFetchController');
-const { addProduct } = require('../controller/admin/adminProductController');
+const { addProduct, getProduct } = require('../controller/admin/adminProductController');
 const { rejectKyc, rejectPayment, rejectWithdrawal } = require('../controller/admin/adminRejectController');
 const { deleteUser } = require('../controller/admin/adminDeleteController');
 const upload = require('../middlewares/upload');
@@ -24,6 +24,7 @@ adminRoute.get('/queries', viewSupport);
 
 //product apis for admin
 adminRoute.post('/addproduct', upload.single('file'), addProduct);
+adminRoute.get('/getproduct', getProduct);
 
 
 //reject apis for admin

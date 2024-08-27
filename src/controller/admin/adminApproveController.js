@@ -10,11 +10,13 @@ const approveOrder = async(req,res)=>{
         const payment = await Payment.findById(paymentId);
 
         const productId = payment.productId;
-        const userId = payment.userId;
+        if(product.isActive == false) return res.status(200).json({message: "Product is not active, can't buy"});
 
+        const userId = payment.userId;
         const user = await User.findById(userId);
+
         const product = await Product.findById(productId);
-        if(!user || !product || !payment) {return res.status(404).send('User or Product not found')};
+        if(!user || !product || !payment) {return res.status(200).json({message:'User or Product not found'})};
 
         if(!user.canBuy) return res.status(200).json({message: "User can't buy product as he has an active product with incomplete cycle"});
 
@@ -108,7 +110,6 @@ const isCycleCompleted = async (user) => {
 }
 
 
-
 const paidAcknowledgement = async (req,res)=>{
     const { userId, withdrawalId, UTR } = req.body
 
@@ -116,7 +117,7 @@ const paidAcknowledgement = async (req,res)=>{
       const withdrawal = await Withdrawal.findById(withdrawalId);
       const user = await User.findById(userId);
 
-      if(!withdrawal || !user) return res.status(404).json({message: "Withdrawal request or User not found"});
+      if(!withdrawal || !user) return res.status(200).json({message: "Withdrawal request or User not found"});
       if(!user.balance >= withdrawal.requestedAmount || !withdrawal.paymentStatus == "Pending") return res.status(200).json({message: "Can't send acknowledgement"});
       if(!withdrawal.requestedAmount >= 1000 || !UTR) return res.status(200).json({message: "Requested Amount is less than minimum withdrawalable amount or UTR not present"});
 
@@ -140,9 +141,9 @@ const paidAcknowledgement = async (req,res)=>{
         const userId = req.query;
         const user = await User.findById(userId);
     
-        if (!user) return res.status(404).json({ error: 'User not found' });
+        if (!user) return res.status(200).json({ error: 'User not found' });
     
-        if (user.kycDetails.kycStatus !== 'Pending') return res.status(400).json({ error: 'KYC is already approved or rejected' });
+        if (user.kycDetails.kycStatus !== 'Pending') return res.status(200).json({ error: 'KYC is already approved or rejected' });
     
         user.kycDetails.kycStatus = 'Verified';
         await user.save();
