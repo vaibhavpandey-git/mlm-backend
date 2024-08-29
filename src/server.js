@@ -23,6 +23,8 @@ app.use(cors())
 //auth, admin & user Routes
 app.use('/v1/api',router);
 
-app.listen(process.env.PORT,()=>{
-    console.log(`Server running on PORT ${process.env.PORT}`);
-});
+// app.listen(process.env.PORT,()=>{
+//     console.log(`Server running on PORT ${process.env.PORT}`);
+// });
+
+module.exports = app;
