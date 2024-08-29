@@ -2,14 +2,15 @@
     "version": 2,
     "builds": [
       {
-        "src": "server.js",
+        "src": "mlm-backend/src/server.js",
         "use": "@vercel/node"
       }
     ],
     "routes": [
       {
-        "src": "./src/server.js",
-        "dest": "/server.js"
+        "src": "/(.*)",
+        "dest": "mlm-backend/src/server.js"
       }
     ]
   }
+  
