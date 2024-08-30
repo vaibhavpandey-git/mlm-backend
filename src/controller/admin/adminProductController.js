@@ -15,7 +15,7 @@ const addProduct = async(req,res)=>{
         amount: `₹${price}`
       });
       priceBreakUp.push({
-        label: 'Incl. all taxes',
+        label: '',
         amount: 'Incl. all taxes'
       });
       priceBreakUp.push({
