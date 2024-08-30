@@ -8,7 +8,7 @@ const addProduct = async(req,res)=>{
       parentCommission = parentCommission/100;
       grandParentCommission = grandParentCommission/100;
 
-      let priceBreakUp = [{}];
+      let priceBreakUp = [];
 
       priceBreakUp.push({
         label: 'Price',
