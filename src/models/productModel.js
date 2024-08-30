@@ -7,7 +7,13 @@ const productSchema = mongoose.Schema({
     isActive: {type: Boolean, default: true},
     parentCommission:{type: Number, default:0},
     grandParentCommission: {type: Number, default:0},
-    description: {type: String}
+    description: {type: String},
+    priceBreakUp:[
+          {
+            label: {type: String},
+            amount: {type: String}
+          }
+        ]
 },{timestamps: true})
 
 const Product = mongoose.model('product',productSchema);

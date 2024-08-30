@@ -7,7 +7,23 @@ const addProduct = async(req,res)=>{
     try {
       parentCommission = parentCommission/100;
       grandParentCommission = grandParentCommission/100;
-      const product = new Product({ title, parentCommission, grandParentCommission, price, description, image: file.path });
+
+      let priceBreakUp = [{}];
+
+      priceBreakUp.push({
+        label: 'Price',
+        amount: `₹${price}`
+      });
+      priceBreakUp.push({
+        label: 'Incl. all taxes',
+        amount: 'Incl. all taxes'
+      });
+      priceBreakUp.push({
+        label: 'Total Pay',
+        amount: `₹${price}`
+      });
+
+      const product = new Product({ title, parentCommission, grandParentCommission, price, description, image: file.path, priceBreakUp });
       await product.save();
       res.status(201).json({message: "Product added successfully"});
     } catch (err) {
