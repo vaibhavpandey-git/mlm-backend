@@ -29,7 +29,7 @@ const login= async(req,res)=>{
     );
     user.token = token;
     await user.save();
-    res.status(200).json({token: token, message: "Login Successfull"});
+    res.status(200).json({data: {token: token}, message: "Login Successfull"});
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }

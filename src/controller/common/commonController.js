@@ -15,7 +15,7 @@ const updateDetails= async (req,res)=>{
         else if(!personalDetails && bankDetails){
             user.bankDetails = bankDetails;
         }
-        user.save();
+        await user.save();
         res.status(200).json({message: "Updated successfully"});
     } catch (error) {
         res.status(500).json({message: error.message});
