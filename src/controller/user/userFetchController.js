@@ -35,19 +35,22 @@ const userDetails= async(req,res)=>{
     }
 }
 
-const payments= async()=>{
+const payments= async(req,res)=>{
     const {userId} = req.user;
     try {
         const payments = await Payment.find({userId: userId});
         if(payments.length == 0) return res.status(200).json({message: "No record found"});
-        for(let i=0; payments.length; i++){
-            delete payments[i].tempParent
-            delete payments[i].paymentProof
+
+        for(let i=0; i<payments.length; i++){
+            // let fileUrl = `${req.protocol}://${req.get('host')}/${products[i].image}`;
+            const fileUrl = 'https://picsum.photos/200/300';
+            payments[i].paymentProof = fileUrl;
         }
 
+        res.status(200).json({data: payments, message: "successfully fetched"});
         res.status(200).json(payments)
     } catch (error) {
-
+        res.status(500).json({message: error.message});
     }
 }
 module.exports = {userWithdrawals, userDetails, payments};
