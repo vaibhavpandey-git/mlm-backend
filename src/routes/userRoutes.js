@@ -8,7 +8,7 @@ const userRoute = Express.Router();
 
 
 //user fetch apis
-userRoute.post('/withdrawals', userWithdrawals);
+userRoute.get('/withdrawals', userWithdrawals);
 userRoute.get('/userdetails', userDetails);
 userRoute.get('/payments', payments);
 

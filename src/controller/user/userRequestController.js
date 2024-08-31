@@ -23,7 +23,7 @@ const payment= async(req,res)=>{
           productId,
           userName: user.personalDetails.name,
           userPhone: user.phone,
-          amount,
+          amount: product.price,
           paymentProof,
           tempParent: referralCode,
           paymentStatus: "Pending",
@@ -48,12 +48,14 @@ const withdrawalRequest= async (req,res)=>{
         const canRequest = async ()=>{
             if(requestedAmount <= user.balance && requestedAmount >= 1000){
                 const requests = await Withdrawal.find({userId: userId});
-                if(!requests) return true;
+                if(requests.length == 0) return true;
                 const foundPending = requests.find((request) => request.paymentStatus == "Pending");
                 if(foundPending) return false;
                 return true;
             }
-            else return false;
+            else{
+                return false
+            }
         }
         if(! await canRequest()) return res.status(200).json({message: "User can not request withdrawal for now"});
         const bankDetails = user.bankDetails;

@@ -6,9 +6,9 @@ const userWithdrawals=async(req,res)=>{
     const {userId} = req.user
     try {
         const withdrawals = await Withdrawal.find({userId: userId});
-        if(withdrawals.length) return res.status(200).json({message: "No withdrawals found"});
+        if(withdrawals.length == 0) return res.status(200).json({message: "No withdrawals found"});
 
-        return res.status(200).json(withdrawals);
+        return res.status(200).json({data: withdrawals, message: "Withdrawal history fetched successfully"});
     } catch (error) {
         return res.status(500).json({message: error.message});
     }
@@ -28,7 +28,7 @@ const userDetails= async(req,res)=>{
         delete user.tempParent
         delete user.canRefer
         delete user.token
-        return res.status(200).json(user);
+        return res.status(200).json({data: user, message: "User details fetched successfully"});
         
     } catch (error) {
         return res.status(500).json({message: error.message});
@@ -49,6 +49,19 @@ const payments= async(req,res)=>{
 
         res.status(200).json({data: payments, message: "successfully fetched"});
         res.status(200).json(payments)
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
+const confirmedOrders = async(req,res)=>{
+    const {userId} = req.user
+    try {
+        const user = await User.findById(userId);
+        let products = [];
+        user.products.map((product)=>{
+
+        })
     } catch (error) {
         res.status(500).json({message: error.message});
     }

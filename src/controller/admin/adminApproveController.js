@@ -126,7 +126,7 @@ const paidAcknowledgement = async (req,res)=>{
         UTR: UTR,
         paidOn: Date.now()
       };
-      withdrawal.paymentStatus = "Completed";
+      withdrawal.paymentStatus = "Success";
       await withdrawal.save();
       await user.save();
       res.status(200).json({message: "Ackowledgement sent succuessfully"});
