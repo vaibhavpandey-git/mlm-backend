@@ -57,7 +57,7 @@ const userRegister= async(req,res)=>{
               )
             user.token = token;
             await user.save();
-            return res.status(201).json({message: "User registered successfully", token});
+            return res.status(201).json({message: "User registered successfully", data: {token: token}});
         }
         return res.status(400).json({message: "OTP is required"});
     } catch (error) {
